@@ -3,6 +3,7 @@
 #include "app/application.h"
 #include "app/diligent.h"
 #include "app/glfw.h"
+#include "app/os.h"
 #include "gfx/pipeline.h"
 #include "gfx/utils.h"
 
@@ -10,7 +11,7 @@ namespace awawa {
 
 struct application::impl {
   bool is_running = false;
-  std::unique_ptr<glfw> window;
+  std::unique_ptr<glfw::with_user_data<impl>> window;
   std::unique_ptr<diligent> diligent_engine;
   pipeline_ptr pipeline;
 
@@ -40,13 +41,19 @@ struct application::impl {
   void cleanup() { is_running = false; }
 
 private:
-  void init_glfw() { window = glfw::create(); }
+  void on_resize(int w, int h) {}
+
+  void init_glfw() {
+    window = glfw::create(this);
+    window->add_callback<&impl::on_resize>(&glfwSetWindowSizeCallback);
+  }
+
   void init_diligent() {
     diligent_engine = std::unique_ptr<diligent>{
         new diligent{diligent::create(window->native_window())}};
   }
   void init_triangle_pipeline() {
-    auto shader_dir = std::filesystem::current_path() / "shaders";
+    auto shader_dir = find_executable_directory() / "shaders";
     auto vs_code = loadTextFile(shader_dir / "tutorial.vert");
     auto fs_code = loadTextFile(shader_dir / "tutorial.frag");
 
@@ -71,8 +78,6 @@ void application::run() { self->run(); }
 
 application::application(std::span<char *> args) : self{new impl{args}} {
   self->init();
-  self->run();
-  self->cleanup();
 }
 
 application::~application() noexcept = default;

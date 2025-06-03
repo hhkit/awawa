@@ -44,10 +44,17 @@ std::unique_ptr<glfw> glfw::create() {
 }
 
 glfw::glfw() = default;
+glfw::glfw(glfw &&rhs) noexcept : window{rhs.window} { rhs.window = nullptr; }
+glfw &glfw::operator=(glfw &&rhs) noexcept {
+  std::swap(window, rhs.window);
+  return *this;
+}
 glfw::~glfw() noexcept {
-  glfwDestroyWindow(window);
-  if (!--glfw_counter)
-    glfwTerminate();
+  if (window) {
+    glfwDestroyWindow(window);
+    if (!--glfw_counter)
+      glfwTerminate();
+  }
 };
 
 } // namespace awawa

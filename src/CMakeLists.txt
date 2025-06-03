@@ -5,11 +5,17 @@ set(AWAWA_SOURCES
   app/application.cpp
   app/diligent.cpp
   app/glfw.cpp
+  app/os.cpp
 
   gfx/pipeline.cpp
   gfx/utils.cpp
 
   main.cpp
+)
+
+set(AWAWA_DEPENDENCIES
+  glfw
+  # glm::glm
 )
 
 if(PLATFORM_MACOS)
@@ -19,7 +25,8 @@ if(PLATFORM_MACOS)
 endif()
 
 add_executable(${AWAWA_BIN} 
-  ${AWAWA_SOURCES})
+  ${AWAWA_SOURCES}
+)
 
   # handle shaders
 add_slang_shader(tutorial-vs
@@ -54,5 +61,5 @@ PRIVATE
   Diligent-Common
   Diligent-GraphicsTools
   ${ENGINE_LIBRARIES}
-  glfw
+  ${AWAWA_DEPENDENCIES}
 )
