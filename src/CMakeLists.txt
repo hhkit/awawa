@@ -1,29 +1,55 @@
 
-set(APP_NAME awawa)
+set(AWAWA_BIN awawa)
 
-set(SOURCES
+set(AWAWA_SOURCES
   app/application.cpp
   app/diligent.cpp
   app/glfw.cpp
+
+  gfx/pipeline.cpp
+  gfx/utils.cpp
+
   main.cpp
 )
+
 if(PLATFORM_MACOS)
-  list(APPEND SOURCES 
+  list(APPEND AWAWA_SOURCES 
     app/surfacehelper.mm
   )
 endif()
 
-add_executable(${APP_NAME} 
-  ${SOURCES})
+add_executable(${AWAWA_BIN} 
+  ${AWAWA_SOURCES})
 
-target_include_directories(${APP_NAME}
+  # handle shaders
+add_slang_shader(tutorial-vs
+  SOURCE shaders/tutorial.slang
+  STAGE vertex)
+
+add_slang_shader(tutorial-fs
+    SOURCE shaders/tutorial.slang
+    STAGE fragment)
+
+set(AWAWA_SHADERS 
+  tutorial-vs
+  tutorial-fs
+)
+
+foreach(SHADER IN LISTS AWAWA_SHADERS)
+  add_dependencies(
+    ${AWAWA_BIN}
+    ${SHADER}
+  )
+endforeach()
+
+target_include_directories(${AWAWA_BIN}
 PRIVATE
   ${CMAKE_SOURCE_DIR}/include
 )
 
 get_supported_backends(ENGINE_LIBRARIES)
 
-target_link_libraries(${APP_NAME}
+target_link_libraries(${AWAWA_BIN}
 PRIVATE
   Diligent-Common
   Diligent-GraphicsTools

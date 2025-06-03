@@ -3,6 +3,8 @@ add_subdirectory(DiligentCore)
 
 # FetchContent
 include(FetchContent)
+include(${CMAKE_SOURCE_DIR}/cmake/FindSlang.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/SlangUtils.cmake)
 
 # glfw
 FetchContent_Declare(

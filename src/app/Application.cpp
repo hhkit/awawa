@@ -3,6 +3,8 @@
 #include "app/application.h"
 #include "app/diligent.h"
 #include "app/glfw.h"
+#include "gfx/pipeline.h"
+#include "gfx/utils.h"
 
 namespace awawa {
 
@@ -10,6 +12,7 @@ struct application::impl {
   bool is_running = false;
   std::unique_ptr<glfw> window;
   std::unique_ptr<diligent> diligent_engine;
+  pipeline_ptr pipeline;
 
   impl(std::span<char *> args) {}
   ~impl() noexcept {
@@ -21,13 +24,16 @@ struct application::impl {
     assert(!is_running && "double initialization");
 
     init_glfw();
-    init_vulkan();
+    init_diligent();
+    init_triangle_pipeline();
 
     is_running = true;
   }
   void run() {
     while (is_running) {
       window->poll_events();
+      diligent_engine->render(pipeline);
+      diligent_engine->present();
       is_running = !window->should_close();
     }
   }
@@ -35,9 +41,29 @@ struct application::impl {
 
 private:
   void init_glfw() { window = glfw::create(); }
-  void init_vulkan() {
+  void init_diligent() {
     diligent_engine = std::unique_ptr<diligent>{
         new diligent{diligent::create(window->native_window())}};
+  }
+  void init_triangle_pipeline() {
+    auto shader_dir = std::filesystem::current_path() / "shaders";
+    auto vs_code = loadTextFile(shader_dir / "tutorial.vert");
+    auto fs_code = loadTextFile(shader_dir / "tutorial.frag");
+
+    if (!(vs_code && fs_code))
+      throw std::runtime_error("shaders not found");
+
+    auto vs = createShader(diligent_engine->device, *vs_code,
+                           shader_stage::SHADER_TYPE_VERTEX);
+
+    auto fs = createShader(diligent_engine->device, *fs_code,
+                           shader_stage::SHADER_TYPE_PIXEL);
+
+    if (!(vs && fs))
+      throw std::runtime_error("shaders not loaded");
+
+    pipeline = createPipeline(diligent_engine->device,
+                              diligent_engine->swapchain, vs, fs);
   }
 };
 

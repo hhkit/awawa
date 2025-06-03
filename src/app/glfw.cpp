@@ -19,7 +19,6 @@ Diligent::NativeWindow glfw::native_window() const {
 #if PLATFORM_WIN32
   window_handle = static_cast<void *>(glfwGetWin32Window(window));
 #elif PLATFORM_MACOS
-  glfwMakeContextCurrent(window);
   window_handle = static_cast<void *>(GetNSWindowView(window));
 #elif PLATFORM_LINUX
   // FIXME: Get x11 or wayland window handle using glfw
