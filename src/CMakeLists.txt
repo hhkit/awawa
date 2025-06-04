@@ -10,6 +10,11 @@ set(AWAWA_SOURCES
   gfx/pipeline.cpp
   gfx/utils.cpp
 
+  world/mesh.cpp
+  world/transform.cpp
+
+  tutorial/02_cube.cpp
+
   main.cpp
 )
 
@@ -28,18 +33,29 @@ add_executable(${AWAWA_BIN}
   ${AWAWA_SOURCES}
 )
 
-  # handle shaders
+# handle shaders
+
 add_slang_shader(tutorial-vs
-  SOURCE shaders/tutorial.slang
-  STAGE vertex)
+    SOURCE shaders/01_tutorial.slang
+    STAGE vertex)
 
 add_slang_shader(tutorial-fs
-    SOURCE shaders/tutorial.slang
+    SOURCE shaders/01_tutorial.slang
+    STAGE fragment)
+
+add_slang_shader(cube-vs
+  SOURCE shaders/02_cube.slang
+  STAGE vertex)
+
+add_slang_shader(cube-fs
+    SOURCE shaders/02_cube.slang
     STAGE fragment)
 
 set(AWAWA_SHADERS 
   tutorial-vs
   tutorial-fs
+  cube-vs
+  cube-fs
 )
 
 foreach(SHADER IN LISTS AWAWA_SHADERS)

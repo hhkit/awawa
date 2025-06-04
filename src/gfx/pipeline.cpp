@@ -1,13 +1,23 @@
 #include "gfx/pipeline.h"
-#include "SwapChain.h"
+#include "app/os.h"
 
 namespace awawa {
-shader_ptr createShader(Diligent::IRenderDevice *device,
-                        std::string_view shader_code, shader_stage stage) {
+shader_factory::shader_factory(Diligent::IRenderDevice *device)
+    : device{device} {
+  device->GetEngineFactory()->CreateDefaultShaderSourceStreamFactory(
+      (find_executable_directory() / "shaders").c_str(),
+      &shader_source_factory);
+}
+
+shader_ptr shader_factory::create_shader(std::filesystem::path shader_path,
+                                         shader_stage stage) {
   Diligent::ShaderCreateInfo ci;
+  ci.pShaderSourceStreamFactory = shader_source_factory;
   ci.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_HLSL;
+  ci.CompileFlags = Diligent::SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
   ci.Desc.UseCombinedTextureSamplers = true;
-  ci.Source = shader_code.data();
+
+  ci.FilePath = shader_path.c_str();
 
   ci.Desc.ShaderType = stage;
   switch (stage) {
@@ -24,38 +34,49 @@ shader_ptr createShader(Diligent::IRenderDevice *device,
     ci.Desc.Name = "Pixel shader";
     break;
   default:
-    throw std::runtime_error("unsupported shader stage");
+    throw std::runtime_error("unsupported shader stage in " +
+                             shader_path.string());
   }
 
   shader_ptr ret;
   device->CreateShader(ci, &ret);
+  if (!ret)
+    throw std::runtime_error("shader compilation error in " +
+                             shader_path.string());
   return ret;
 }
 
-pipeline_ptr createPipeline(Diligent::IRenderDevice *device,
-                            Diligent::ISwapChain *swapchain,
-                            shader_ptr vertex_shader,
-                            shader_ptr fragment_shader) {
-  Diligent::GraphicsPipelineStateCreateInfo ci;
-  Diligent::PipelineStateDesc &PSODesc = ci.PSODesc;
+buffer_ptr create_buffer(Diligent::IRenderDevice *device,
+                         std::span<const std::byte> buffer_data,
+                         buffer_type buf_ty, Diligent::USAGE usage) {
+  buffer_ptr ptr;
+  Diligent::BufferDesc buff_desc;
+  buff_desc.Size = buffer_data.size();
+  buff_desc.Usage = usage; // todo: compute
 
-  PSODesc.Name = "Simple triangle PSO";
-  PSODesc.PipelineType = Diligent::PIPELINE_TYPE_GRAPHICS;
-  ci.GraphicsPipeline.NumRenderTargets = 1;
-  ci.GraphicsPipeline.RTVFormats[0] = swapchain->GetDesc().ColorBufferFormat;
+  Diligent::BufferData buffer_data_ci;
+  buffer_data_ci.pData = buffer_data.data();
+  buffer_data_ci.DataSize = buffer_data.size();
 
-  ci.GraphicsPipeline.DSVFormat = Diligent::TEX_FORMAT_D32_FLOAT;
-  ci.GraphicsPipeline.PrimitiveTopology =
-      Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  switch (buf_ty) {
+  case buffer_type::vertex:
+    buff_desc.Name = "vertex buffer";
+    buff_desc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
+    break;
+  case buffer_type::index:
+    buff_desc.Name = "index buffer";
+    buff_desc.BindFlags = Diligent::BIND_INDEX_BUFFER;
+    break;
+  case buffer_type::uniform:
+    buff_desc.Name = "uniform buffer";
+    buff_desc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+    buff_desc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
 
-  ci.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_NONE;
-  ci.GraphicsPipeline.DepthStencilDesc.DepthEnable = false;
+    buffer_data_ci.pData = nullptr;
+    break;
+  };
 
-  ci.pVS = vertex_shader;
-  ci.pPS = fragment_shader;
-
-  pipeline_ptr retval;
-  device->CreatePipelineState(ci, &retval);
-  return retval;
+  device->CreateBuffer(buff_desc, &buffer_data_ci, &ptr);
+  return ptr;
 }
 } // namespace awawa

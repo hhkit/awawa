@@ -11,7 +11,6 @@ struct diligent {
   Diligent::IDeviceContext *immediate_context;
   Diligent::ISwapChain *swapchain;
 
-  void render(pipeline_ptr pipeline);
   void present();
 
   static diligent create(Diligent::NativeWindow window);
