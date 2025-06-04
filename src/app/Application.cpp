@@ -36,6 +36,7 @@ struct application::impl {
     diligent_engine->immediate_context->Flush();
     diligent_engine->immediate_context->FinishFrame();
   }
+
   void run() {
     using clock = std::chrono::steady_clock;
     auto prev = clock::now();
@@ -56,7 +57,7 @@ struct application::impl {
   void cleanup() { is_running = false; }
 
 private:
-  void on_resize(int w, int h) {}
+  void on_resize(int w, int h) { diligent_engine->swapchain->Resize(w, h); }
 
   void init_glfw() {
     window = glfw::create(this);

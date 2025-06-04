@@ -1,3 +1,6 @@
 [submodule "ext/DiligentCore"]
 	path = ext/DiligentCore
 	url = https://github.com/DiligentGraphics/DiligentCore
+[submodule "ext/DiligentTools"]
+	path = ext/DiligentTools
+	url = https://github.com/DiligentGraphics/DiligentTools

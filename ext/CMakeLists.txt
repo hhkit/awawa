@@ -1,5 +1,8 @@
 set(DILIGENT_NO_OPENGL ON)
+set(DILIGENT_BUILD_TOOLS ON)
+
 add_subdirectory(DiligentCore)
+add_subdirectory(DiligentTools)
 
 # FetchContent
 include(FetchContent)

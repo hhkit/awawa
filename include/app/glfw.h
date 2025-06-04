@@ -6,6 +6,9 @@
 #include "NativeWindow.h"
 
 namespace awawa {
+
+void *get_window_handle();
+
 struct glfw {
   template <typename T> struct with_user_data;
 

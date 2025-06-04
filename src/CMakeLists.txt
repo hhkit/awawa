@@ -10,6 +10,8 @@ set(AWAWA_SOURCES
   gfx/pipeline.cpp
   gfx/utils.cpp
 
+  # gui/gui.cpp
+
   world/mesh.cpp
   world/transform.cpp
 
@@ -20,12 +22,14 @@ set(AWAWA_SOURCES
 
 set(AWAWA_DEPENDENCIES
   glfw
+  Diligent-Imgui
   # glm::glm
 )
 
 if(PLATFORM_MACOS)
   list(APPEND AWAWA_SOURCES 
     app/surfacehelper.mm
+    gui/gui.mm
   )
 endif()
 
