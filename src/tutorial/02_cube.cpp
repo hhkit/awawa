@@ -115,6 +115,9 @@ world_state create_world(diligent &engine) {
   world.indices = create_buffer(engine.device, cube.indexes, buffer_type::index,
                                 Diligent::USAGE_IMMUTABLE);
 
+  world.cube_transform.rotation =
+      quat::RotationFromAxisAngle({1, 0, 0}, -pi * 0.1f);
+
   return world;
 }
 
@@ -172,7 +175,7 @@ void world_state::init(diligent &engine) {
 }
 
 void world_state::update(seconds dt) {
-  cube_transform.rotation = quat::RotationFromAxisAngle({1, 0, 0}, -pi * 0.1f);
+  cube_transform.rotation *= quat::RotationFromAxisAngle({0, 1, 0}, dt.count());
 }
 
 void world_state::render(diligent &engine) {
@@ -186,15 +189,6 @@ void world_state::render(diligent &engine) {
 
     wvMatrix = cube_transform.matrix() * view * pretransform;
     projMatrix = proj;
-
-    auto tmp = wvMatrix * proj;
-    for (int i = 0; i < 4; ++i) {
-      for (int j = 0; j < 4; ++j) {
-        std::cout << tmp[i][j] << " ";
-      }
-      std::cout << "\n";
-    }
-    std::cout << std::endl;
   }
 
   auto pRTV = engine.swapchain->GetCurrentBackBufferRTV();

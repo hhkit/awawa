@@ -14,7 +14,6 @@ shader_ptr shader_factory::create_shader(std::filesystem::path shader_path,
   Diligent::ShaderCreateInfo ci;
   ci.pShaderSourceStreamFactory = shader_source_factory;
   ci.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_HLSL;
-  ci.CompileFlags = Diligent::SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
   ci.Desc.UseCombinedTextureSamplers = true;
 
   ci.FilePath = shader_path.c_str();

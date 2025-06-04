@@ -27,9 +27,9 @@ cbuffer Constants
 void vertexMain(in  VSInput VSIn,
   out PSInput PSIn)
 {
-    float4x4 mvp = transpose(mul(g_Proj, g_WorldView));
-    PSIn.CamPos = mul(float4(VSIn.Pos, 1.0), g_WorldView);
-    PSIn.Pos   = mul(float4(VSIn.Pos, 1.0), mvp);
+    float4x4 mvp = g_WorldView * g_Proj;
+    PSIn.CamPos = mul(g_WorldView, float4(VSIn.Pos, 1.0));
+    PSIn.Pos   = mul(mvp, float4(VSIn.Pos, 1.0));
     PSIn.Color = VSIn.Color;
     // PSIn.mvp = mul(g_Proj, g_WorldView);
 }
