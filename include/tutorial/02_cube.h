@@ -1,11 +1,12 @@
 #pragma once
 #include "app/diligent.h"
+#include "app/layer.h"
 #include "gfx/pipeline.h"
 #include "world/mesh.h"
 #include "world/transform.h"
 
 namespace awawa::tutorial::_02 {
-struct world_state {
+struct world_state : layer {
   buffer_ptr vertices;
   buffer_ptr colors;
   buffer_ptr indices;
@@ -17,9 +18,9 @@ struct world_state {
   transform cube_transform;
   float4x4 wvMatrix, projMatrix;
 
-  void init(diligent &engine);
-  void update(seconds dt);
-  void render(diligent &engine);
+  void init(diligent &engine) override;
+  void update(seconds dt, diligent &engine) override;
+  void render(diligent &engine) override;
 };
 
 mesh create_cube();

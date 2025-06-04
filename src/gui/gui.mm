@@ -1,11 +1,14 @@
 #include "gui/gui.h"
 #include "ImGuiImplMacOS.hpp"
+#include "ImGuiUtils.hpp"
 
 namespace awawa {
 void imgui::init(diligent &engine) {
   Diligent::ImGuiDiligentCreateInfo ci{engine.device,
                                        engine.swapchain->GetDesc()};
   impl = Diligent::ImGuiImplMacOS::Create(ci, engine.window.pNSView);
+
+  ImGui::StyleColorsDiligent();
 }
 
 void imgui::update(seconds dt, diligent &engine) {

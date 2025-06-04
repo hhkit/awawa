@@ -174,7 +174,7 @@ void world_state::init(diligent &engine) {
   std::cout << "    done" << std::endl;
 }
 
-void world_state::update(seconds dt) {
+void world_state::update(seconds dt, diligent &engine) {
   cube_transform.rotation *= quat::RotationFromAxisAngle({0, 1, 0}, dt.count());
 }
 
